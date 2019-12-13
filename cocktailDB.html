@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+        .card {
+            max-width: 540px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="row">
+            <div class="col font-weight-bolder bg-dark text-secondary d-flex justify-content-end">cocktailDB</div>
+        </div>
+    </header>
+    <div class="d-flex justify-content-center my-2">
+        <div id="carouselExampleControls" class="carousel slide" style="width: 400px;" data-ride="carousel">
+            <div class="carousel-inner" id="inner"></div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center my-2">
+        <input type="text" placeholder="search" id="search" aria-label="search">
+        <button class="btn btn-secondary" id="submit" type="submit">Search</button>
+    </div>
+    <div class="container bg-dark">
+        <div class="row">
+            <div class="col-6" id="box1"></div>
+            <div class="col-6" id="box2"></div>
+        </div>
+    </div>
+
+    <script>
+        var submit = document.getElementById('submit')
+        submit.addEventListener('click',drinks)
+
+        function drinks(){
+            
+            var search = document.getElementById('search').value
+            // var url = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=' + search
+
+            if( search.length == 1 ){
+                var url = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?f=' + search
+            }
+            else{
+                var url = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=' + search
+            }
+            console.log(url)
+
+            var xhr = new XMLHttpRequest(); 
+
+            xhr.open('GET',url);
+            xhr.send();
+            xhr.onload = function (){
+
+                if(xhr.status == 200){
+
+                    data = JSON.parse(xhr.response)
+                    console.log(data['drinks'][0]['strDrink'])
+                    dataProcess(data);
+                }
+                else{
+                    console.log('Error is ',xhr.response)
+                }
+            }
+        }
+
+        function dataProcess(data){
+            var box1 = document.getElementById('box1')
+            var box2 = document.getElementById('box2')
+            var drinks = data.drinks
+
+            if( document.querySelector('#box1 div') != null ){
+                var divs1 = document.querySelectorAll('#box1 div')
+                var divs2 = document.querySelectorAll('#box2 div')
+
+                for(i=0;i<divs1.length;i++){
+                    divs1[i].remove();
+                }
+
+                for(i=0;i<divs2.length;i++){
+                    divs2[i].remove();
+                }
+            }
+
+            for(i=0;i<drinks.length;i++){
+                var div = document.createElement('div')
+                div.setAttribute('class','card mb-3')
+                var div2 = document.createElement('div')
+                div2.setAttribute('class','row no-gutters')
+                var div3 = document.createElement('div')
+                div3.setAttribute('class','col-md-4')
+                var img = document.createElement('img')
+                img.setAttribute('src',drinks[i]['strDrinkThumb'])
+                console.log(drinks[i]['strDrinkThumb'])
+                img.setAttribute('class','card-img')
+                var div4 = document.createElement('div')
+                div4.setAttribute('class','col-md-8')
+                var div5 = document.createElement('div')
+                div5.setAttribute('class','card-body')
+                var h5 = document.createElement('h5')
+                h5.setAttribute('class','card-title')
+                h5.textContent = drinks[i]['strDrink']
+                console.log(drinks[i]['strDrink'])
+                var p = document.createElement('p')
+                p.setAttribute('class','card-text')
+                p.textContent = drinks[i]['strCategory']
+                console.log(drinks[i]['strCategory'])
+                var p2 = document.createElement('p')
+                p2.setAttribute('class','card-text')
+                p2.textContent = drinks[i]['strGlass']
+                console.log(drinks[i]['strGlass'])
+                var p3 = document.createElement('p')
+                p3.setAttribute('class','card-text')
+                p3.textContent = drinks[i]['strInstructions']
+                console.log(drinks[i]['strInstructions'])
+
+                div5.appendChild(h5)
+                div5.appendChild(p)
+                div5.appendChild(p2)
+                div5.appendChild(p3)
+                div4.appendChild(div5)
+                div2.appendChild(div4)
+                div3.appendChild(img)
+                div2.appendChild(div3)
+                div.appendChild(div2)
+                
+                if(i%2==0){
+                    box1.appendChild(div)
+                }
+                else{
+                    box2.appendChild(div)
+                }
+            }
+        }
+
+        function carousel(){
+
+            var xhr = new XMLHttpRequest(); 
+
+            xhr.open('GET','https://www.thecocktaildb.com/api/json/v1/1/random.php');
+            xhr.send();
+            xhr.onload = function (){
+
+                var images = JSON.parse(xhr.response)
+                if(xhr.status == 200){
+                    imageProcess(images)
+                }
+                else{
+                    console.log('Error is ',xhr.response)
+                }
+            }
+        }
+
+        setInterval( function(){
+            carousel();
+        }, 5000)
+
+        function imageProcess(images){
+            var inner = document.getElementById('inner')
+            var image = images.drinks
+            console.log(image.length)
+            var div = document.createElement('div')
+            div.setAttribute('class','carousel-item active')
+            var img = document.createElement('img')
+            img.setAttribute('class','d-block w-100')
+            img.setAttribute('src',image[0]['strDrinkThumb'])
+            div.appendChild(img)
+            inner.appendChild(div)
+
+            for(i=1;i<image.length;i++){
+                var div = document.createElement('div')
+                div.setAttribute('class','carousel-item')
+                var img = document.createElement('img')
+                img.setAttribute('class','d-block w-100')
+                img.setAttribute('src',image[i]['strDrinkThumb'])
+                div.appendChild(img)
+                inner.appendChild(div)
+            }
+        }
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
